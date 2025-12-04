@@ -1,0 +1,73 @@
+# Dependency directories
+/vendor/
+/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+/storage/logs/*
+/storage/*.key
+
+# Cache and session data
+/storage/framework/cache/**
+/storage/framework/sessions/**
+/storage/framework/views/*.php
+/storage/framework/compiled/**
+
+# Testing
+/phpunit.xml
+.phpunit.result.cache
+
+# IDE specific files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Local development
+Homestead.yaml
+Homestead.json
+Homestead.after.yaml
+.phpunit.result.cache
+
+# Debugbar
+/debugbar/
+
+# Local environment files
+.env.local
+.env.*.local
+
+# Composer
+composer.phar
+composer.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL
+.php_history
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
