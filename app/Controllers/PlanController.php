@@ -16,10 +16,23 @@ class PlanController extends Controller {
         $this->setupService = new SetupService();
     }
 
-    public function index(): void {
+    public function index() {
         $this->requireAuth();
-        $plans = $this->planService->getAllForUser(Session::getUserId());
-        $this->view('plans/index', ['plans' => $plans]);
+        $userId = Session::getUserId();
+        if (!$userId) {
+            // Redirect to login if user ID is not in session
+            header('Location: /login');
+            exit();
+        }
+        
+        $plans = $this->planService->getAllForUser($userId);
+        
+        $this->view('plans/index', [
+            'plans' => $plans,
+            'success' => $_SESSION['success'] ?? null
+        ]);
+        
+        unset($_SESSION['success']);
     }
 
     public function create(): void {
@@ -35,11 +48,20 @@ class PlanController extends Controller {
             'user_id' => Session::getUserId(),
             'setup_id' => $_POST['setup_id'] ?? 0,
             'symbol' => strtoupper($_POST['symbol'] ?? ''),
+            'sector' => $_POST['sector'] ?? null,
+            'industry' => $_POST['industry'] ?? null,
             'direction' => $_POST['direction'] ?? 'long',
+            'timeframe' => $_POST['timeframe'] ?? null,
+            'entry_timeframe' => $_POST['entry_timeframe'] ?? null,
+            'trend' => $_POST['trend'] ?? null,
+            'emotion' => $_POST['emotion'] ?? null,
+            'confidence' => $_POST['confidence'] ?? 0,
             'entry_price' => $_POST['entry_price'] ?? 0,
             'stop_loss' => $_POST['stop_loss'] ?? 0,
             'take_profit' => $_POST['take_profit'] ?? 0,
-            'position_size' => $_POST['position_size'] ?? 0,
+            'capital' => $_POST['capital'] ?? 0,
+            'risk' => $_POST['risk'] ?? 0,
+            'trade_date' => $_POST['trade_date'] ?? date('Y-m-d H:i:s'),
             'notes' => $_POST['notes'] ?? ''
         ];
 
@@ -67,11 +89,19 @@ class PlanController extends Controller {
         $data = [
             'setup_id' => $_POST['setup_id'] ?? 0,
             'symbol' => strtoupper($_POST['symbol'] ?? ''),
+            'sector' => $_POST['sector'] ?? null,
+            'industry' => $_POST['industry'] ?? null,
             'direction' => $_POST['direction'] ?? 'long',
+            'timeframe' => $_POST['timeframe'] ?? null,
+            'entry_timeframe' => $_POST['entry_timeframe'] ?? null,
+            'trend' => $_POST['trend'] ?? null,
+            'emotion' => $_POST['emotion'] ?? null,
+            'confidence' => $_POST['confidence'] ?? 0,
             'entry_price' => $_POST['entry_price'] ?? 0,
             'stop_loss' => $_POST['stop_loss'] ?? 0,
             'take_profit' => $_POST['take_profit'] ?? 0,
-            'position_size' => $_POST['position_size'] ?? 0,
+            'capital' => $_POST['capital'] ?? 0,
+            'risk' => $_POST['risk'] ?? 0,
             'notes' => $_POST['notes'] ?? ''
         ];
 
@@ -98,5 +128,36 @@ class PlanController extends Controller {
         $this->planService->cancel($id, Session::getUserId());
         Session::setFlash('success', 'Plan cancelled');
         $this->redirect('/plans');
+    }
+
+    public function show(int $id): void {
+        $this->requireAuth();
+        $userId = Session::getUserId();
+        
+        // Get the plan by ID and ensure it belongs to the current user
+        $plan = $this->planService->getById($id, $userId);
+        
+        if (!$plan) {
+            Session::setFlash('error', 'Plan not found or access denied');
+            $this->redirect('/plans');
+            return;
+        }
+        
+        // Get related setup information if needed
+        $setup = null;
+        if (!empty($plan['setup_id'])) {
+            $setup = $this->setupService->getById($plan['setup_id'], $userId);
+        }
+        
+        // Render the view with plan and setup data
+        $this->view('plans/show', [
+            'plan' => $plan,
+            'setup' => $setup,
+            'success' => $_SESSION['success'] ?? null,
+            'error' => $_SESSION['error'] ?? null
+        ]);
+        
+        // Clear flash messages after displaying
+        unset($_SESSION['success'], $_SESSION['error']);
     }
 }

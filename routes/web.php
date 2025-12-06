@@ -30,6 +30,7 @@ $router->post('/setups/{id}/delete', [SetupController::class, 'delete']);
 $router->get('/plans', [PlanController::class, 'index']);
 $router->get('/plans/create', [PlanController::class, 'create']);
 $router->post('/plans', [PlanController::class, 'store']);
+$router->get('/plans/{id}', [PlanController::class, 'show']);
 $router->get('/plans/{id}/edit', [PlanController::class, 'edit']);
 $router->post('/plans/{id}/update', [PlanController::class, 'update']);
 $router->post('/plans/{id}/execute', [PlanController::class, 'execute']);

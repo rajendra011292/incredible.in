@@ -45,12 +45,36 @@ class Plan {
 
     public function create(array $data): int {
         $this->db->query(
-            "INSERT INTO plans (user_id, setup_id, symbol, direction, entry_price, stop_loss, take_profit, position_size, notes) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO plans (
+                user_id, setup_id, symbol, sector, industry, direction, timeframe, entry_timeframe,
+                trend, emotion, confidence, entry_price, stop_loss, take_profit, capital, risk,
+                risk_per_share, risk_per_trade, position_size, risk_reward_ratio, capital_used, 
+                trade_date, notes
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
-                $data['user_id'], $data['setup_id'], $data['symbol'], $data['direction'],
-                $data['entry_price'], $data['stop_loss'], $data['take_profit'],
-                $data['position_size'], $data['notes']
+                $data['user_id'], 
+                $data['setup_id'] ?? null, 
+                $data['symbol'], 
+                $data['sector'] ?? null,
+                $data['industry'] ?? null,
+                $data['direction'] ?? 'long',
+                $data['timeframe'] ?? null,
+                $data['entry_timeframe'] ?? null,
+                $data['trend'] ?? null,
+                $data['emotion'] ?? null,
+                $data['confidence'] ?? 50,
+                $data['entry_price'],
+                $data['stop_loss'],
+                $data['take_profit'],
+                $data['capital'],
+                $data['risk'],
+                $data['risk_per_share'] ?? null,
+                $data['risk_per_trade'] ?? null,
+                $data['position_size'],
+                $data['risk_reward_ratio'] ?? null,
+                $data['capital_used'] ?? null,
+                $data['trade_date'] ?? date('Y-m-d H:i:s'),
+                $data['notes'] ?? ''
             ]
         );
         return (int) $this->db->getConnection()->lastInsertId();
@@ -58,30 +82,71 @@ class Plan {
 
     public function update(int $id, int $userId, array $data): bool {
         $stmt = $this->db->query(
-            "UPDATE plans SET setup_id = ?, symbol = ?, direction = ?, entry_price = ?, 
-             stop_loss = ?, take_profit = ?, position_size = ?, notes = ? 
+            "UPDATE plans SET 
+                setup_id = ?, 
+                symbol = ?, 
+                sector = ?,
+                industry = ?,
+                direction = ?, 
+                timeframe = ?,
+                entry_timeframe = ?,
+                trend = ?,
+                emotion = ?,
+                confidence = ?,
+                entry_price = ?, 
+                stop_loss = ?, 
+                take_profit = ?, 
+                capital = ?, 
+                risk = ?,
+                risk_per_share = ?,
+                risk_per_trade = ?,
+                position_size = ?,
+                risk_reward_ratio = ?,
+                capital_used = ?,
+                trade_date = ?,
+                notes = ?,
+                updated_at = CURRENT_TIMESTAMP
              WHERE id = ? AND user_id = ? AND status = 'pending'",
             [
-                $data['setup_id'], $data['symbol'], $data['direction'], $data['entry_price'],
-                $data['stop_loss'], $data['take_profit'], $data['position_size'],
-                $data['notes'], $id, $userId
+                $data['setup_id'] ?? null,
+                $data['symbol'],
+                $data['sector'] ?? null,
+                $data['industry'] ?? null,
+                $data['direction'] ?? 'long',
+                $data['timeframe'] ?? null,
+                $data['entry_timeframe'] ?? null,
+                $data['trend'] ?? null,
+                $data['emotion'] ?? null,
+                $data['confidence'] ?? 50,
+                $data['entry_price'],
+                $data['stop_loss'],
+                $data['take_profit'],
+                $data['capital'],
+                $data['risk'],
+                $data['risk_per_share'] ?? null,
+                $data['risk_per_trade'] ?? null,
+                $data['position_size'],
+                $data['risk_reward_ratio'] ?? null,
+                $data['capital_used'] ?? null,
+                $data['trade_date'] ?? date('Y-m-d H:i:s'),
+                $data['notes'] ?? '',
+                $id, 
+                $userId
             ]
         );
         return $stmt->rowCount() > 0;
     }
 
     public function updateStatus(int $id, string $status, ?int $userId = null): bool {
+        $params = [$status, $id];
+        $sql = "UPDATE plans SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        
         if ($userId) {
-            $stmt = $this->db->query(
-                "UPDATE plans SET status = ? WHERE id = ? AND user_id = ?",
-                [$status, $id, $userId]
-            );
-        } else {
-            $stmt = $this->db->query(
-                "UPDATE plans SET status = ? WHERE id = ?",
-                [$status, $id]
-            );
+            $sql .= " AND user_id = ?";
+            $params[] = $userId;
         }
+        
+        $stmt = $this->db->query($sql, $params);
         return $stmt->rowCount() > 0;
     }
 }
