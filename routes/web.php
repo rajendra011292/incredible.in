@@ -33,6 +33,7 @@ $router->post('/plans', [PlanController::class, 'store']);
 $router->get('/plans/{id}', [PlanController::class, 'show']);
 $router->get('/plans/{id}/edit', [PlanController::class, 'edit']);
 $router->post('/plans/{id}/update', [PlanController::class, 'update']);
+$router->get('/plans/{id}/execute', [PlanController::class, 'execute']);
 $router->post('/plans/{id}/execute', [PlanController::class, 'execute']);
 $router->post('/plans/{id}/cancel', [PlanController::class, 'cancel']);
 

@@ -112,7 +112,22 @@ class PlanController extends Controller {
 
     public function execute(int $id): void {
         $this->requireAuth();
-        $result = $this->planService->execute($id, Session::getUserId());
+        $userId = Session::getUserId();
+        $plan = $this->planService->getById($id, $userId);
+        
+        if (!$plan || $plan['status'] !== 'pending') {
+            Session::setFlash('error', 'Plan not found or cannot be executed');
+            $this->redirect('/plans');
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $setups = $this->setupService->getAllForUser($userId);
+            $this->view('plans/execute', ['plan' => $plan, 'setups' => $setups]);
+            return;
+        }
+        
+        $result = $this->planService->execute($id, $userId);
         
         if ($result['success']) {
             Session::setFlash('success', 'Plan executed! Position opened.');

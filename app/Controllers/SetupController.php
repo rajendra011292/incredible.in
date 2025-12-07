@@ -15,7 +15,15 @@ class SetupController extends Controller {
 
     public function index(): void {
         $this->requireAuth();
-        $setups = $this->setupService->getAllForUser(Session::getUserId());
+        
+        $userId = Session::getUserId();
+        if (!$userId) {
+            Session::setFlash('error', 'User authentication error. Please log in again.');
+            $this->redirect('/login');
+            return;
+        }
+        
+        $setups = $this->setupService->getAllForUser($userId);
         $this->view('setups/index', ['setups' => $setups]);
     }
 
@@ -27,8 +35,15 @@ class SetupController extends Controller {
     public function store(): void {
         $this->requireAuth();
         
+        $userId = Session::getUserId();
+        if (!$userId) {
+            Session::setFlash('error', 'User authentication error. Please log in again.');
+            $this->redirect('/login');
+            return;
+        }
+        
         $data = [
-            'user_id' => Session::getUserId(),
+            'user_id' => $userId,
             'name' => $_POST['name'] ?? '',
             'description' => $_POST['description'] ?? '',
             'strategy' => $_POST['strategy'] ?? ''
@@ -41,7 +56,15 @@ class SetupController extends Controller {
 
     public function edit(int $id): void {
         $this->requireAuth();
-        $setup = $this->setupService->getById($id, Session::getUserId());
+        
+        $userId = Session::getUserId();
+        if (!$userId) {
+            Session::setFlash('error', 'User authentication error. Please log in again.');
+            $this->redirect('/login');
+            return;
+        }
+        
+        $setup = $this->setupService->getById($id, $userId);
         
         if (!$setup) {
             Session::setFlash('error', 'Setup not found');
@@ -54,20 +77,35 @@ class SetupController extends Controller {
     public function update(int $id): void {
         $this->requireAuth();
         
+        $userId = Session::getUserId();
+        if (!$userId) {
+            Session::setFlash('error', 'User authentication error. Please log in again.');
+            $this->redirect('/login');
+            return;
+        }
+        
         $data = [
             'name' => $_POST['name'] ?? '',
             'description' => $_POST['description'] ?? '',
             'strategy' => $_POST['strategy'] ?? ''
         ];
 
-        $this->setupService->update($id, Session::getUserId(), $data);
+        $this->setupService->update($id, $userId, $data);
         Session::setFlash('success', 'Setup updated successfully');
         $this->redirect('/setups');
     }
 
     public function delete(int $id): void {
         $this->requireAuth();
-        $this->setupService->delete($id, Session::getUserId());
+        
+        $userId = Session::getUserId();
+        if (!$userId) {
+            Session::setFlash('error', 'User authentication error. Please log in again.');
+            $this->redirect('/login');
+            return;
+        }
+        
+        $this->setupService->delete($id, $userId);
         Session::setFlash('success', 'Setup deleted successfully');
         $this->redirect('/setups');
     }

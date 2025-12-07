@@ -147,12 +147,10 @@ $user = $_SESSION['user'] ?? null;
                 Cancel Plan
             </button>
         </form>
-        <form action="/plans/<?= $plan['id'] ?>/execute" method="POST" class="inline"
-              onsubmit="return confirm('Execute this trade plan? This action cannot be undone.');">
-            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
-                Execute Trade
-            </button>
-        </form>
+        <a href="/plans/<?= $plan['id'] ?>/execute" 
+           class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
+            Execute Trade
+        </a>
     </div>
     <?php endif; ?>
 </div>
